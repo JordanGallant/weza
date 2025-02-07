@@ -9,7 +9,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>jordan</Text>
+      <Text>jordaan</Text>
     </View>
   );
 }
