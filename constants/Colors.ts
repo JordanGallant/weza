@@ -3,5 +3,5 @@ export const Colors = {
     grey: '#A6A3AF',
     fontLight: '#fff',
     fontDark: '#292929',
-    background: '##F12AFF'
+    background: '#F12AFF'
   };
