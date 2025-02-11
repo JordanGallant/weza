@@ -20,7 +20,6 @@ const tokenCache = {
     } catch (err) {
       return null;
     }
-    console.log("tokenCache", tokenCache);
   },
   async saveToken(key: string, value: string) {
     try {
@@ -37,9 +36,15 @@ const InitalLayout = () => {
   const segments = useSegments();
 
   useEffect(() => {
-    if (!isLoaded) return(
-      const inAuthGroup = segments.includes("auth");
-    )
+    if (!isLoaded) return;
+      const inAuthGroup = segments[0] === "(authenticated)";
+
+      if(isSignedIn && !inAuthGroup) {
+        router.replace('/(authenticated)/(tabs)/comunities' as any);
+      } else if (!isSignedIn && inAuthGroup) {
+        router.replace('/' as any);
+      }
+    
   }, [isSignedIn]);
 
   if (!isLoaded) {
