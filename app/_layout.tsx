@@ -6,6 +6,8 @@ import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import * as SecureStore from "expo-secure-store";
 import { SupabaseProvider } from "@/context/SupaBaseContext";
 import { View, Text, ActivityIndicator } from "react-native";
+import techgrounds from "./components/techgrounds";
+
 
 import { Colors } from "@/constants/Colors";
 import { useEffect } from "react";
@@ -40,7 +42,7 @@ const InitalLayout = () => {
       const inAuthGroup = segments[0] === "(authenticated)";
 
       if(isSignedIn && !inAuthGroup) {
-        router.replace('/(authenticated)/(tabs)/comunities' as any);
+        router.replace('/(authenticated)/(tabs)/weza' as any);
       } else if (!isSignedIn && inAuthGroup) {
         router.replace('/' as any);
       }
