@@ -1,61 +1,58 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const uuid = require('uuid');  // For generating unique IDs
+const bodyParser = require('body-parser');
+const http = require('http');
+const WebSocket = require('ws');
 
 const app = express();
-const PORT = 3000;
+app.use(bodyParser.json());
 
-// Middleware to parse JSON body
-app.use(express.json());
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
 
-// Store data (in-memory)
-let jsonData = [];
+let notifications = [];
+let clients = [];
 
-// Endpoint to store data
-app.post('/store', (req, res) => {
-    const data = req.body;
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+  // Add the new client to the list of clients
+  clients.push(ws);
 
-    if (!data) {
-        return res.status(400).json({ message: 'Invalid JSON data' });
+  ws.send(JSON.stringify({ type: 'initial', notifications }));
+
+  ws.on('close', () => {
+    clients = clients.filter(client => client !== ws);
+    console.log('Client disconnected');
+  });
+});
+
+app.post('/send-notification', (req, res) => {
+  const { title, description, location } = req.body;
+  const newNotification = {
+    id: (notifications.length + 1).toString(),
+    title,
+    description,
+    location,
+    timestamp: Date.now()
+  };
+
+  notifications.push(newNotification);
+
+  // Broadcast the new notification to all connected clients
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ type: 'new-notification', notification: newNotification }));
     }
+  });
 
-    // Add unique ID to the data
-    const newData = { ...data, id: uuid.v4() };
-    jsonData.push(newData);
-
-    // (Optional) Save to file
-    fs.writeFileSync(path.join(__dirname, 'data.json'), JSON.stringify(jsonData, null, 2));
-
-    res.json({ message: 'Data stored successfully', data: newData });
+  res.status(201).json(newNotification);
 });
 
-// Endpoint to retrieve stored data
-app.get('/data', (req, res) => {
-    res.json(jsonData);
+// HTTP endpoint to fetch all notifications
+app.get('/notifications', (req, res) => {
+  res.json(notifications);
 });
 
-// Endpoint to delete data by ID
-app.delete('/data/:id', (req, res) => {
-    const { id } = req.params;
-
-    // Find the index of the data to be deleted
-    const index = jsonData.findIndex(item => item.id === id);
-
-    if (index === -1) {
-        return res.status(404).json({ message: 'Data not found' });
-    }
-
-    // Remove the item from the array
-    jsonData.splice(index, 1);
-
-    // (Optional) Update the file with the new data
-    fs.writeFileSync(path.join(__dirname, 'data.json'), JSON.stringify(jsonData, null, 2));
-
-    res.json({ message: 'Data deleted successfully' });
-});
-
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
 });
