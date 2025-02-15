@@ -17,40 +17,44 @@ type LocationType = Location.LocationObject | null;
 type AddressType = string | null;
 
 const App = () => {
-  //hardcoded notifications
   const [message, setMessage] = useState("");
-
-  const sendNotification = () => {
-    // TODO: Integrate with backend
-    Alert.alert(
-      "Alert Sent",
-      "Your safety alert has been sent to the community.",
-      [{ text: "OK" }]
-    );
-    console.log("Notification sent with message:", message);
-    setMessage("");
-  };
-
   const [location, setLocation] = useState<LocationType>(null);
   const [address, setAddress] = useState<AddressType>(null);
   const [loading, setLoading] = useState(false);
 
+  const sendNotification = async () => {
+    if (!address) {
+      Alert.alert("Location Required", "Please fetch location before sending.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:3000/send-notification", {
+        title: "Safety Alert",
+        description: "Emergency situation!",
+        location: 'wawa',
+      });
+
+      Alert.alert("Success", "Notification sent successfully");
+      console.log("Notification sent:", response.data);
+    } catch (error) {
+      console.error("Error sending notification:", error);
+      Alert.alert("Error", "Failed to send notification");
+    }
+  };
+
   const handleGetLocation = async () => {
     setLoading(true);
     try {
-      // Request permissions for location
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.log("Permission to access location was denied");
+        Alert.alert("Permission Denied", "Location access is required.");
         setLoading(false);
         return;
       }
 
-      // Get the current location
       const location = await Location.getCurrentPositionAsync({});
       setLocation(location);
-
-      // Convert coordinates to address
       await fetchAddress(location.coords.latitude, location.coords.longitude);
     } catch (error) {
       console.error("Error fetching location:", error);
@@ -60,7 +64,7 @@ const App = () => {
 
   const fetchAddress = async (latitude: number, longitude: number) => {
     try {
-      const API_KEY = "4bd2eab0ae244d0fbf451e1b51cc77e2";
+      const API_KEY = "fabd613ea5054389ba72c9e3af23b842";
       const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${API_KEY}`;
 
       const response = await fetch(url);
@@ -78,47 +82,40 @@ const App = () => {
   };
 
   return (
-    <>
-      <View style={styles.container}>
-        <Ionicons name="notifications-outline" size={80} color="purple" />
-        <Text style={styles.title}>Safety Alert</Text>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            sendNotification();
-            handleGetLocation();
-          }}
-        >
-          <Text style={styles.buttonText}>Send Notification</Text>
-        </TouchableOpacity>
-        <Text style={styles.subtitle}>
-          If you feel unsafe or in danger, notify your community immediately.
-        </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Optional: Describe your situation..."
-          value={message}
-          onChangeText={setMessage}
-          multiline
-          placeholderTextColor="#666"
-        />
-        {loading && (
-          <ActivityIndicator
-            size="large"
-            color="purple"
-            style={{ marginTop: 20 }}
-          />
-        )}
-        {address && (
-          <View style={{ marginTop: 10, padding: 10 }}>
-            <Text style={{ fontWeight: "bold" }}>Address:</Text>
-            <Text>{address}</Text>
-          </View>
-        )}
-      </View>
-    </>
+    <View style={styles.container}>
+      <Ionicons name="notifications-outline" size={80} color="purple" />
+      <Text style={styles.title}>Safety Alert</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={async () => {
+          await handleGetLocation();
+          sendNotification();
+        }}
+      >
+        <Text style={styles.buttonText}>Send Notification</Text>
+      </TouchableOpacity>
+      <Text style={styles.subtitle}>
+        If you feel unsafe or in danger, notify your community immediately.
+      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Optional: Describe your situation..."
+        value={message}
+        onChangeText={setMessage}
+        multiline
+        placeholderTextColor="#666"
+      />
+      {loading && <ActivityIndicator size="large" color="purple" style={{ marginTop: 20 }} />}
+      {address && (
+        <View style={{ marginTop: 10, padding: 10 }}>
+          <Text style={{ fontWeight: "bold" }}>Address:</Text>
+          <Text>{address}</Text>
+        </View>
+      )}
+    </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
