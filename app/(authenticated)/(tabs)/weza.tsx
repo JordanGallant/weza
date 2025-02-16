@@ -31,7 +31,7 @@ const App = () => {
       const response = await axios.post("http://localhost:3000/send-notification", {
         title: "Safety Alert",
         description: message,
-        location: address,
+        location: address
       });
 
       Alert.alert("Success", "Notification sent successfully");
