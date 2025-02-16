@@ -52,7 +52,6 @@ const App = () => {
       setLocation(location);
       await fetchAddress(location.coords.latitude, location.coords.longitude);
       sendNotification(location.coords.latitude, location.coords.longitude);
-      sendNotification(location.coords.latitude, location.coords.longitude);
     } catch (error) {
       console.error("Error fetching location:", error);
     }
