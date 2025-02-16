@@ -25,7 +25,7 @@ const App = () => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:3000/send-notification", {
+      const response = await axios.post("https://weza-api.onrender.com/send-notification", {
         title: "Safety Alert",
         description: message,
         // location: `Latitude: ${latitude}, Longitude: ${longitude}`,
