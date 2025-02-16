@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const WS_URL = "ws://localhost:3000"; 
+const WS_URL = "wss://weza-api.onrender.com";
 
 interface Notification {
   id: string;
@@ -64,9 +64,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "flex-start",
     padding: 20,
+    width: "100%",
   },
   title: {
     fontSize: 28,

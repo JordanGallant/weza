@@ -14,34 +14,31 @@ import axios from "axios";
 
 type LocationType = Location.LocationObject | null;
 type AddressType = string | null;
-
 const App = () => {
   const [message, setMessage] = useState("");
   const [location, setLocation] = useState<LocationType>(null);
   const [address, setAddress] = useState<AddressType>(null);
   const [loading, setLoading] = useState(false);
-
   const sendNotification = async (latitude: number, longitude: number) => {
     if (!address) {
       Alert.alert("Location Required", "Please fetch location before sending.");
       return;
     }
-
     try {
-      const response = await axios.post("http://localhost:3000/send-notification", {
+      const response = await axios.post("https://weza-api.onrender.com/send-notification", {
         title: "Safety Alert",
         description: message,
+        // location: `Latitude: ${latitude}, Longitude: ${longitude}`,
         location: address
       });
-
       Alert.alert("Success", "Notification sent successfully");
       console.log("Notification sent:", response.data);
+      setMessage("");
     } catch (error) {
       console.error("Error sending notification:", error);
       Alert.alert("Error", "Failed to send notification");
     }
   };
-
   const handleGetLocation = async () => {
     setLoading(true);
     try {
@@ -51,25 +48,22 @@ const App = () => {
         setLoading(false);
         return;
       }
-
       const location = await Location.getCurrentPositionAsync({});
       setLocation(location);
       await fetchAddress(location.coords.latitude, location.coords.longitude);
+      sendNotification(location.coords.latitude, location.coords.longitude);
       sendNotification(location.coords.latitude, location.coords.longitude);
     } catch (error) {
       console.error("Error fetching location:", error);
     }
     setLoading(false);
   };
-
   const fetchAddress = async (latitude: number, longitude: number) => {
     try {
       const API_KEY = "fabd613ea5054389ba72c9e3af23b842";
       const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${API_KEY}`;
-
       const response = await fetch(url);
       const data = await response.json();
-
       if (data.results.length > 0) {
         setAddress(data.results[0].formatted);
       } else {
@@ -80,7 +74,6 @@ const App = () => {
       setAddress("Error retrieving address");
     }
   };
-
   return (
     <View style={styles.container}>
       <Ionicons name="notifications-outline" size={80} color="purple" />
@@ -112,7 +105,6 @@ const App = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -156,5 +148,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
 export default App;
