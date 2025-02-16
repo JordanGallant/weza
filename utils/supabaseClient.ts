@@ -21,7 +21,6 @@ function createClerkSupabaseClient() {
         const clerkToken = await window.Clerk.session?.getToken({
           template: 'supabase',
         });
-        console.log("clerkToken", clerkToken);
 
         const headers = new Headers(options?.headers);
         headers.set('Authorization', `Bearer ${clerkToken}`);

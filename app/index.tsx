@@ -1,31 +1,32 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, Image, TouchableOpacity, Text, TextInput } from "react-native";
 import AuthModal from "./components/AuthModal";
 import { Colors } from "../constants/Colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ModalType } from "@/types/enums";
-import * as WebBrowser from "expo-web-browser"
+import * as WebBrowser from "expo-web-browser";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetBackdrop,
 } from '@gorhom/bottom-sheet';
-import { BottomSheetProvider } from "@gorhom/bottom-sheet/lib/typescript/contexts";
 
 const Index = () => {
   const { top } = useSafeAreaInsets();
-  const {showActionSheetWithOptions} =useActionSheet();
+  const { showActionSheetWithOptions } = useActionSheet();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const snapPoints = useMemo(() => ['33%'], []);
   const [authType, setAuthType] = useState<ModalType | null>(null);
+  const [email, setEmail] = useState("");
 
   const showModal = async (type: ModalType) => {
     setAuthType(type);
     bottomSheetModalRef.current?.present();
   };
+  
   const openLink = () => {
-    WebBrowser.openBrowserAsync('https://google.com')
+    WebBrowser.openBrowserAsync('https://google.com');
   };
 
   const openActionSheet = async () => {
@@ -43,13 +44,14 @@ const Index = () => {
           case 1:
             // Support
             break;
-
           case cancelButtonIndex:
-          // Canceled
+            // Canceled
+            break;
         }
       }
     );
   };
+
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -62,55 +64,56 @@ const Index = () => {
     ),
     []
   );
+
   return (
     <BottomSheetModalProvider>
-
-    <View style={styles.container}>
-      <Image
-        source={require("../assets/images/logo.png")}
-        style={styles.image}
-      />
-
-      <View style={styles.bottomContainer}>
-        <Text style={{ color: "black" }}> log in</Text>
-        <TouchableOpacity
-          style={[styles.btn, { backgroundColor: "black" }]}
-          onPress={() => showModal(ModalType.Login)}
-        >
-          <Text style={styles.text}> log in</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.btn, { backgroundColor: "white" }]}
-          onPress={() => showModal(ModalType.SignUp)}
-        >
-          <Text style={[styles.text, { color: "black" }]}> Sign Up</Text>
-        </TouchableOpacity>
-        <Text style={[styles.description, { color: "black" }]}>
-          {" "}
-          By signing up you agree to the{" "}
-          <Text style={styles.link} onPress={openLink}>User Notice{" "}</Text>
-          and {''}
-          <Text style={styles.link} onPress={openLink}>Privacy Polocy</Text>
-          .
-        </Text>
-        <Text style={styles.link} onPress={openActionSheet}>cant login or signup?
-        </Text>
-
+      <View style={styles.container}>
+        <Image source={require("../assets/images/logo.png")} style={styles.image} />
+        <View style={styles.bottomContainer}>
+          <Text style={{ color: "black" }}>Username:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your Username"
+            placeholderTextColor="#aaa"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <Text style={{ color: "black" }}>Password:</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your Password"
+            placeholderTextColor="#aaa"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TouchableOpacity
+            style={[styles.btn, { backgroundColor: "black" }]}
+            onPress={() => showModal(ModalType.Login)}
+          >
+            <Text style={styles.text}>Log in</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.btn, { backgroundColor: "white" }]}
+            onPress={() => showModal(ModalType.SignUp)}
+          >
+            <Text style={[styles.text, { color: "black" }]}>Sign Up</Text>
+          </TouchableOpacity>
+          <Text style={[styles.description, { color: "black" }]}>By signing up you agree to the <Text style={styles.link} onPress={openLink}>User Notice</Text> and <Text style={styles.link} onPress={openLink}>Privacy Policy</Text>.</Text>
+          <Text style={styles.link} onPress={openActionSheet}>Can't log in or sign up?</Text>
+        </View>
       </View>
-    </View>
-    <BottomSheetModal
+      <BottomSheetModal
         ref={bottomSheetModalRef}
         index={0}
         snapPoints={snapPoints}
         handleComponent={null}
         backdropComponent={renderBackdrop}
         enableOverDrag={false}
-        enablePanDownToClose>
+        enablePanDownToClose
+      >
         <AuthModal authType={authType} />
       </BottomSheetModal>
     </BottomSheetModalProvider>
-
   );
 };
 
@@ -155,6 +158,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textAlign: "center",
     textDecorationLine: "underline",
+  },
+  input: {
+    width: "100%",
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: "black",
   },
 });
 

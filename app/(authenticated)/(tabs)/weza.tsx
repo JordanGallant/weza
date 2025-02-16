@@ -12,7 +12,6 @@ import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 
-// Define types for location and address
 type LocationType = Location.LocationObject | null;
 type AddressType = string | null;
 
@@ -22,7 +21,7 @@ const App = () => {
   const [address, setAddress] = useState<AddressType>(null);
   const [loading, setLoading] = useState(false);
 
-  const sendNotification = async () => {
+  const sendNotification = async (latitude: number, longitude: number) => {
     if (!address) {
       Alert.alert("Location Required", "Please fetch location before sending.");
       return;
@@ -31,8 +30,8 @@ const App = () => {
     try {
       const response = await axios.post("http://localhost:3000/send-notification", {
         title: "Safety Alert",
-        description: "Emergency situation!",
-        location: 'wawa',
+        description: message,
+        location: address,
       });
 
       Alert.alert("Success", "Notification sent successfully");
@@ -56,6 +55,7 @@ const App = () => {
       const location = await Location.getCurrentPositionAsync({});
       setLocation(location);
       await fetchAddress(location.coords.latitude, location.coords.longitude);
+      sendNotification(location.coords.latitude, location.coords.longitude);
     } catch (error) {
       console.error("Error fetching location:", error);
     }
@@ -87,10 +87,7 @@ const App = () => {
       <Text style={styles.title}>Safety Alert</Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={async () => {
-          await handleGetLocation();
-          sendNotification();
-        }}
+        onPress={handleGetLocation}
       >
         <Text style={styles.buttonText}>Send Notification</Text>
       </TouchableOpacity>
