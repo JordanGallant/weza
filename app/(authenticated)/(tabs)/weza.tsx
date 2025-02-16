@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   TextInput,
+  
 } from "react-native";
 import * as Location from "expo-location";
 import { Ionicons } from "@expo/vector-icons";
@@ -148,3 +149,5 @@ const styles = StyleSheet.create({
   },
 });
 export default App;
+
+//well done team
